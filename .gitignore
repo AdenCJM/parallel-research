@@ -1,8 +1,14 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
 *.egg-info/
 dist/
-.tmp/
+build/
+
+# Environment
 .env
+
+# Temp files
+.tmp/
 .research/
