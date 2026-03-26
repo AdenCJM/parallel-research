@@ -1,0 +1,21 @@
+[project]
+name = "parallel-research"
+version = "0.1.0"
+description = "Multi-LLM deep research skill for Claude Code"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27",
+    "anthropic>=0.40",
+    "openai>=1.60",
+    "google-genai>=1.0",
+    "perplexityai>=0.3",
+    "python-dotenv>=1.0",
+    "pyyaml>=6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["providers"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
