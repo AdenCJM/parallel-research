@@ -4,7 +4,7 @@ Run multiple LLMs in parallel on a research topic. Output lands in `.research/` 
 
 ## Trigger
 
-`/research` — invoke this skill when the user runs `/research` or asks to "research" a topic using multiple LLMs.
+`/research`: invoke this skill when the user runs `/research` or asks to "research" a topic using multiple LLMs.
 
 ## Usage
 
@@ -19,7 +19,7 @@ Run multiple LLMs in parallel on a research topic. Output lands in `.research/` 
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| topic | (required) | The research topic — a question or phrase |
+| topic | (required) | The research topic, a question or phrase |
 | `--depth` | `standard` | `quick` (single call, <1 min), `standard` (3-call refinement, <3 min), `deep` (native deep research where available, <10 min) |
 | `--providers` | all available | Comma-separated: `claude,openai,gemini,perplexity` |
 | `--meta` | off | Run cross-model meta-analysis |
