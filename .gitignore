@@ -12,3 +12,6 @@ build/
 # Temp files
 .tmp/
 .research/
+
+# gstack
+.gstack/

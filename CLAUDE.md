@@ -4,10 +4,10 @@ Multi-LLM deep research skill for Claude Code. Runs Claude, OpenAI, Gemini, and 
 
 ## Project Structure
 
-- `research_runner.py` — asyncio orchestrator, CLI entry point
-- `providers/` — one module per LLM provider, all implement `BaseProvider`
-- `SKILL.md` — Claude Code skill instructions (orchestrates phases)
-- `setup` — first-run bash script (creates venv, installs deps via uv)
+- `research_runner.py`: asyncio orchestrator, CLI entry point
+- `providers/`: one module per LLM provider, all implement `BaseProvider`
+- `SKILL.md`: Claude Code skill instructions (orchestrates phases)
+- `setup`: first-run bash script (creates venv, installs deps via uv)
 
 ## Development
 
