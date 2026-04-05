@@ -4,8 +4,6 @@ One command. Four LLMs. Structured output that lives in your project.
 
 Parallel Research is a [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that runs Claude, OpenAI, Gemini, and Perplexity on the same research topic simultaneously. Each model's response lands as its own structured markdown file in `.research/`, ready to be queried, compared, or fed as context to your next build.
 
-Different models surface different sources and framings. Running them in parallel isn't about redundancy; it's about coverage.
-
 ```
 /research "How do blockchain gaming economies handle inflation?"
 ```
