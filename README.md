@@ -42,6 +42,33 @@ You can, but the output won't be structured or consistent. The real value here i
 
 Because you lose the ability to interrogate each model separately. Maybe Perplexity found a niche source you want to dig into. Maybe Claude's framing of the problem is better than OpenAI's. Separate files let you feed specific perspectives to Claude Code, compare directly, or throw out the one that hallucinated. A merged report hides all of that.
 
+## Documentation
+
+**New to Parallel Research?** Start with the [Getting Started tutorial](docs/tutorial-getting-started.md) (15 minutes).
+
+### Learning Paths
+
+| I want to... | Start here |
+|---|---|
+| **Get up and running** | [Tutorial: Getting Started](docs/tutorial-getting-started.md) |
+| **Run basic research** | [How-to: Basic Research](docs/howto-basic-research.md) |
+| **Run deeper analysis** | [How-to: Deep Research](docs/howto-deep-research.md) |
+| **Compare providers** | [How-to: Meta-Analysis](docs/howto-meta-analysis.md) |
+| **Select specific providers** | [How-to: Select Providers](docs/howto-select-providers.md) |
+| **Add a new provider** | [How-to: Add Provider](docs/howto-add-provider.md) |
+| **Understand how it works** | [Reference: Architecture](docs/reference-architecture.md) |
+| **Understand design choices** | [Explanation: Design Rationale](docs/explanation-design.md) |
+| **API details** | [Reference: BaseProvider API](docs/reference-baseprovider-api.md) |
+| **Output format** | [Reference: Output Format](docs/reference-output-format.md) |
+
+### Documentation Structure
+
+Documentation follows the **Diataxis framework**:
+- **Tutorials** — Learning-oriented step-by-steps
+- **How-tos** — Task-oriented guides for specific goals
+- **Reference** — Comprehensive technical documentation
+- **Explanation** — Understanding-oriented rationale
+
 ## Install
 
 Clone directly into your Claude Code skills directory:
@@ -63,7 +90,7 @@ Setup runs automatically on first use. If you want to run it manually:
 cd ~/.claude/skills/parallel-research && ./setup
 ```
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). The setup script handles the virtual environment and all dependencies.
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). The setup script handles the virtual environment and all dependencies. See [Getting Started](docs/tutorial-getting-started.md) for detailed setup instructions.
 
 ## API Keys
 
@@ -161,16 +188,27 @@ The `research.yaml` manifest tracks everything: which providers ran, which succe
 ## Project structure
 
 ```
-├── research_runner.py       # asyncio orchestrator and CLI
+├── docs/                          # Complete documentation (Diataxis)
+│   ├── tutorial-getting-started.md
+│   ├── howto-basic-research.md
+│   ├── howto-select-providers.md
+│   ├── howto-deep-research.md
+│   ├── howto-meta-analysis.md
+│   ├── howto-add-provider.md
+│   ├── reference-architecture.md
+│   ├── reference-baseprovider-api.md
+│   ├── reference-output-format.md
+│   └── explanation-design.md
+├── research_runner.py             # asyncio orchestrator and CLI
 ├── providers/
-│   ├── base.py              # BaseProvider ABC, ResearchResult, retry logic
-│   ├── claude.py            # Anthropic Claude
-│   ├── openai_provider.py   # OpenAI (chat completions + Responses API)
-│   ├── gemini.py            # Google Gemini
-│   └── perplexity.py        # Perplexity
-├── SKILL.md                 # Claude Code skill instructions
-├── pyproject.toml           # Dependencies
-└── setup                    # First-run venv + install script
+│   ├── base.py                    # BaseProvider ABC, ResearchResult, retry logic
+│   ├── claude.py                  # Anthropic Claude
+│   ├── openai_provider.py         # OpenAI (chat completions + Responses API)
+│   ├── gemini.py                  # Google Gemini
+│   └── perplexity.py              # Perplexity
+├── SKILL.md                       # Claude Code skill instructions
+├── pyproject.toml                 # Dependencies
+└── setup                          # First-run venv + install script
 ```
 
 ## Development
@@ -183,6 +221,11 @@ source .venv/bin/activate
 # Test the CLI directly (needs at least one API key in ~/.env)
 python research_runner.py --topic "test topic" --depth quick --output .research/
 ```
+
+For detailed development guidance:
+- **[Add a new provider](docs/howto-add-provider.md)** — Extend with custom LLM providers
+- **[Architecture reference](docs/reference-architecture.md)** — Deep dive into the system design
+- **[BaseProvider API](docs/reference-baseprovider-api.md)** — Implement custom providers
 
 ## Licence
 
