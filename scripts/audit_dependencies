@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+AUDIT_TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/parallel-research-audit.XXXXXX")"
+trap 'rm -rf "$AUDIT_TEMP_DIR"' EXIT
+
+uv export \
+    --quiet \
+    --locked \
+    --no-dev \
+    --no-emit-project \
+    --format requirements.txt \
+    --output-file "$AUDIT_TEMP_DIR/requirements.txt"
+
+uv run pip-audit \
+    --strict \
+    --no-deps \
+    --requirement "$AUDIT_TEMP_DIR/requirements.txt" \
+    --cache-dir "$AUDIT_TEMP_DIR/cache" \
+    "$@"

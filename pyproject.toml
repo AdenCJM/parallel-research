@@ -1,21 +1,56 @@
 [project]
 name = "parallel-research"
-version = "0.1.0"
-description = "Multi-LLM deep research skill for Claude Code"
+version = "0.2.0"
+description = "Evidence-aware multi-provider research for Claude Code"
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.11"
+authors = [{ name = "AdenCJM" }]
 dependencies = [
-    "httpx>=0.27",
-    "anthropic>=0.40",
-    "openai>=1.60",
-    "google-genai>=1.0",
-    "perplexityai>=0.3",
-    "python-dotenv>=1.0",
-    "pyyaml>=6.0",
+    "anthropic>=0.68,<2",
+    "google-genai>=1.30,<2",
+    "httpx>=0.27,<1",
+    "openai>=1.109,<3",
+    "perplexityai>=0.13,<2",
+    "python-dotenv>=1.0,<2",
+    "pyyaml>=6.0,<7",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["providers"]
+[project.optional-dependencies]
+dev = [
+    "build>=1.2,<2",
+    "mypy>=1.15,<2",
+    "pip-audit>=2.9,<3",
+    "pytest>=8.3,<9",
+    "pytest-asyncio>=0.25,<2",
+    "ruff>=0.11,<1",
+    "types-PyYAML>=6.0,<7",
+]
+
+[project.scripts]
+parallel-research = "parallel_research.cli:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/parallel_research"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["ASYNC240"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["parallel_research"]
+warn_unused_ignores = true
+check_untyped_defs = true

@@ -1,232 +1,168 @@
 # Parallel Research
 
-One command. Four LLMs. Structured output that lives in your project.
+Grounded research from multiple model providers, kept as inspectable evidence inside your project.
 
-Parallel Research is a [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that runs Claude, OpenAI, Gemini, and Perplexity on the same research topic simultaneously. Each model's response lands as its own structured markdown file in `.research/`, ready to be queried, compared, or fed as context to your next build.
+Parallel Research is a Claude Code skill that asks Claude, OpenAI, Gemini, and Perplexity to
+research the same topic concurrently. Each invocation receives an isolated run directory, source
+metadata, resumable background state, structured provider reports, and an optional evidence-aware
+comparison.
 
-```
-/research "How do blockchain gaming economies handle inflation?"
+```text
+/research --meta "How are battery recycling mandates changing in Australia?"
 ```
 
-```
+```text
 .research/
-├── raw/                          # Raw API responses
-├── structured/                   # Processed, structured output per model
-│   ├── claude-how-do-blockchain-gaming-economies-handle-inflation.md
-│   ├── openai-how-do-blockchain-gaming-economies-handle-inflation.md
-│   ├── gemini-how-do-blockchain-gaming-economies-handle-inflation.md
-│   └── perplexity-how-do-blockchain-gaming-economies-handle-inflation.md
-├── meta-analysis.md              # Cross-model synthesis (opt-in)
-└── research.yaml                 # Manifest
+├── index.yaml
+└── runs/
+    └── 20260718T074512Z-a1b2c3-battery-recycling-australia/
+        ├── research.yaml
+        ├── raw/
+        │   ├── claude.md
+        │   ├── openai.md
+        │   ├── gemini.md
+        │   └── perplexity.md
+        ├── structured/
+        │   └── ...
+        └── meta-analysis.md
 ```
 
-## Why
+## What it is for
 
-**"I can just use ChatGPT / Perplexity deep research directly."**
+Different providers can find different sources, frame uncertainty differently, and expose useful
+contradictions. Parallel Research preserves those perspectives instead of flattening them into one
+opaque answer.
 
-You can. But you'll get one model's perspective, shaped by its training data and retrieval biases. Ask Perplexity and Claude the same question and you'll get different sources, different emphasis, and sometimes flat-out contradictory claims. That's the point. A single model gives you an answer. Multiple models give you a map of where the answers agree and where they don't.
+Model agreement is not treated as proof. Meta-analysis distinguishes:
 
-**"Won't they just say the same thing?"**
+- corroboration by independent inspectable sources;
+- single-source findings;
+- cross-model agreement with unknown source independence;
+- contested findings; and
+- unverified model output.
 
-Sometimes. When three out of four models independently arrive at the same conclusion, that's a high-confidence signal. When only one model surfaces a finding, you know to treat it with more scepticism. The meta-analysis makes this explicit. Without it, you'd never know what you were missing.
-
-**"Running four LLMs sounds expensive."**
-
-A `quick` depth run across all four providers costs a few cents. `standard` is under a dollar. `deep` can run a few dollars when using OpenAI's o3-deep-research or Perplexity's sonar-deep-research, but you're getting the equivalent of hours of manual research in minutes. You can also run just the providers you want with `--providers`.
-
-**"I can research manually and paste it into my project."**
-
-You can, but the output won't be structured or consistent. The real value here isn't saving you a browser tab. It's that the output is designed for Claude Code to consume as build context. Each file follows the same template with frontmatter metadata, so when you start building, Claude Code already has categorised, attributable research loaded. No copy-pasting, no reformatting, no "here's what I found" preamble.
-
-**"Why not just one merged report?"**
-
-Because you lose the ability to interrogate each model separately. Maybe Perplexity found a niche source you want to dig into. Maybe Claude's framing of the problem is better than OpenAI's. Separate files let you feed specific perspectives to Claude Code, compare directly, or throw out the one that hallucinated. A merged report hides all of that.
-
-## Documentation
-
-**New to Parallel Research?** Start with the [Getting Started tutorial](docs/tutorial-getting-started.md) (15 minutes).
-
-### Learning Paths
-
-| I want to... | Start here |
-|---|---|
-| **Get up and running** | [Tutorial: Getting Started](docs/tutorial-getting-started.md) |
-| **Run basic research** | [How-to: Basic Research](docs/howto-basic-research.md) |
-| **Run deeper analysis** | [How-to: Deep Research](docs/howto-deep-research.md) |
-| **Compare providers** | [How-to: Meta-Analysis](docs/howto-meta-analysis.md) |
-| **Select specific providers** | [How-to: Select Providers](docs/howto-select-providers.md) |
-| **Add a new provider** | [How-to: Add Provider](docs/howto-add-provider.md) |
-| **Understand how it works** | [Reference: Architecture](docs/reference-architecture.md) |
-| **Understand design choices** | [Explanation: Design Rationale](docs/explanation-design.md) |
-| **API details** | [Reference: BaseProvider API](docs/reference-baseprovider-api.md) |
-| **Output format** | [Reference: Output Format](docs/reference-output-format.md) |
-
-### Documentation Structure
-
-Documentation follows the **Diataxis framework**:
-- **Tutorials** — Learning-oriented step-by-steps
-- **How-tos** — Task-oriented guides for specific goals
-- **Reference** — Comprehensive technical documentation
-- **Explanation** — Understanding-oriented rationale
+All four integrations use provider-native web grounding in quick and standard modes. OpenAI and
+Perplexity use specialized deep-research models in deep mode; Claude and Gemini currently use the
+standard evidence-gap refinement workflow.
 
 ## Install
 
-Clone directly into your Claude Code skills directory:
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-git clone git@github.com:AdenCJM/parallel-research.git ~/.claude/skills/parallel-research
+git clone https://github.com/AdenCJM/parallel-research.git \
+  ~/.claude/skills/parallel-research
+cd ~/.claude/skills/parallel-research
+./setup
 ```
 
-Or if you're developing locally:
+The setup command creates a locked virtual environment. See the
+[getting-started tutorial](docs/tutorial-getting-started.md) for development and symlink installs.
+
+## Configure providers
+
+Add the providers you intend to use to `~/.env` or the research project's `.env`:
+
+```dotenv
+ANTHROPIC_API_KEY=...
+OPENAI_API_KEY=...
+GOOGLE_AI_API_KEY=...
+PERPLEXITY_API_KEY=...
+```
+
+Project-local values override `~/.env`. Missing providers fail visibly without preventing other
+providers from completing.
+
+Research topics are sent to the selected third parties. Do not submit confidential information
+without reviewing each provider's current data controls. Generated research may also contain
+untrusted webpage content; the skill treats it as data and does not follow embedded instructions.
+
+Add `.research/` to the consuming project's `.gitignore` if outputs should remain local.
+
+## Use
+
+From a project in Claude Code:
+
+```text
+/research "Your topic"
+/research --depth quick --providers claude,perplexity "Your topic"
+/research --depth deep "Your topic"
+/research --meta "Your topic"
+/research --meta
+```
+
+`--meta` without a topic selects one latest isolated run. It never scans or combines all prior
+research.
+
+Depth controls workflow, not a guaranteed time, cost, or token count:
+
+| Depth | Behavior |
+|---|---|
+| `quick` | One grounded request per provider |
+| `standard` | Grounded research, evidence-gap search, then synthesis |
+| `deep` | Native deep research where supported; resumable when it outlives the local wait |
+
+Deep research can take tens of minutes and incur material API cost. Review provider pricing before
+use. Model defaults and provider controls can be overridden with the environment variables
+documented in [provider selection](docs/howto-select-providers.md).
+
+## Internal CLI
+
+The Python executable is the deterministic fetch and run-state layer used by the skill:
 
 ```bash
-git clone git@github.com:AdenCJM/parallel-research.git ~/Projects/ParallelResearch
-ln -sf ~/Projects/ParallelResearch ~/.claude/skills/parallel-research
+parallel-research fetch --topic "Your topic" --depth standard
+parallel-research status --run <run-id>
+parallel-research resume --run <run-id>
+parallel-research validate --run <run-id>
 ```
 
-Setup runs automatically on first use. If you want to run it manually:
+Structuring and meta-analysis remain Claude Code workflows. The Python CLI does not advertise an
+unsupported `--meta` flag.
 
-```bash
-cd ~/.claude/skills/parallel-research && ./setup
-```
+## Reliability and safety
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). The setup script handles the virtual environment and all dependencies. See [Getting Started](docs/tutorial-getting-started.md) for detailed setup instructions.
+- Every invocation receives a timestamped, randomized run ID.
+- Manifests are written atomically.
+- Background OpenAI request IDs are persisted before polling.
+- Provider failures and missing keys are isolated.
+- Citations and reported usage are captured structurally where APIs expose them.
+- Stored error messages redact common credential formats.
+- The agent reads only files declared by the selected run manifest.
+- Raw research is explicitly treated as hostile data.
 
-## API Keys
-
-Add whichever providers you want to use to your `~/.env`:
-
-```bash
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-proj-...
-GOOGLE_AI_API_KEY=AI...
-PERPLEXITY_API_KEY=pplx-...
-```
-
-You don't need all four. Any provider with a missing key is skipped automatically. At least one is required.
-
-## Usage
-
-From any project in Claude Code:
-
-```
-/research "Your topic here"
-```
-
-### Depth
-
-Controls how hard each model works.
-
-| Depth | What happens | Time |
-|-------|-------------|------|
-| `quick` | Single API call per model | < 1 min |
-| `standard` | Three-call refinement chain (research, identify gaps, synthesise) | < 3 min |
-| `deep` | Native deep research for Perplexity and OpenAI; falls back to standard for Claude and Gemini | < 10 min |
-
-```
-/research --depth deep "Zero-knowledge proof implementations for gaming"
-```
-
-### Pick your models
-
-```
-/research --providers claude,perplexity "Your topic"
-```
-
-### Meta-analysis
-
-Cross-references all providers' outputs and scores each claim by confidence (how many models agree).
-
-```
-/research --meta "Your topic"           # Fetch + meta-analysis in one go
-/research --meta                        # Run meta-analysis on existing .research/
-```
-
-The meta-analysis flags agreements, contradictions, unique insights, and questions that none of the models could answer well.
-
-## How it works
-
-Three phases, run in sequence:
-
-**Phase 1** (Python, parallel) hits all selected providers concurrently via `asyncio`. Each response is written to `.research/raw/` as markdown with YAML frontmatter. A `research.yaml` manifest tracks status, timings, and file paths. If a provider fails or times out, the others still complete.
-
-**Phase 2** (Claude Code) reads each raw file and structures it into a consistent template: summary, key findings, sources, unique insights, and limitations. Output goes to `.research/structured/`.
-
-**Phase 3** (Claude Code, opt-in) reads all structured files and cross-references claims across providers.
-
-## Provider details
-
-| Provider | Package | Deep research | Notes |
-|----------|---------|:---:|-------|
-| Perplexity | `perplexityai` | Native | `sonar-deep-research` for deep, `sonar-pro` otherwise |
-| OpenAI | `openai` | Native | `o3-deep-research` via Responses API for deep, `gpt-4o` otherwise |
-| Claude | `anthropic` | Fallback | `claude-sonnet-4-6`; deep falls back to standard |
-| Gemini | `google-genai` | Fallback | `gemini-2.5-pro`; deep falls back to standard |
-
-All providers use exponential backoff (1s, 2s, 4s) with max 3 retries on rate limits and server errors.
-
-## Output format
-
-Each structured file follows the same template:
-
-```yaml
----
-provider: perplexity
-model: sonar-pro
-topic: "How do blockchain gaming economies handle inflation?"
-topic_slug: how-do-blockchain-gaming-economies-handle-inflation
-depth: standard
-timestamp: 2026-03-26T14:07:50Z
-source_file: raw/perplexity-20260326-1407.md
----
-```
-
-Sections: **Summary**, **Key Findings**, **Sources & References**, **Unique Insights**, **Limitations**.
-
-The `research.yaml` manifest tracks everything: which providers ran, which succeeded, durations, file paths, and whether meta-analysis has been generated.
-
-## Project structure
-
-```
-├── docs/                          # Complete documentation (Diataxis)
-│   ├── tutorial-getting-started.md
-│   ├── howto-basic-research.md
-│   ├── howto-select-providers.md
-│   ├── howto-deep-research.md
-│   ├── howto-meta-analysis.md
-│   ├── howto-add-provider.md
-│   ├── reference-architecture.md
-│   ├── reference-baseprovider-api.md
-│   ├── reference-output-format.md
-│   └── explanation-design.md
-├── research_runner.py             # asyncio orchestrator and CLI
-├── providers/
-│   ├── base.py                    # BaseProvider ABC, ResearchResult, retry logic
-│   ├── claude.py                  # Anthropic Claude
-│   ├── openai_provider.py         # OpenAI (chat completions + Responses API)
-│   ├── gemini.py                  # Google Gemini
-│   └── perplexity.py              # Perplexity
-├── SKILL.md                       # Claude Code skill instructions
-├── pyproject.toml                 # Dependencies
-└── setup                          # First-run venv + install script
-```
+See [architecture](docs/reference-architecture.md), [output format](docs/reference-output-format.md),
+and [design rationale](docs/explanation-design.md).
 
 ## Development
 
 ```bash
-cd ~/Projects/ParallelResearch
-./setup
-source .venv/bin/activate
-
-# Test the CLI directly (needs at least one API key in ~/.env)
-python research_runner.py --topic "test topic" --depth quick --output .research/
+uv sync --locked --extra dev
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy src
+uv run pytest
+uv run python scripts/check_markdown_links.py
+bash scripts/audit_dependencies
+uv build
 ```
 
-For detailed development guidance:
-- **[Add a new provider](docs/howto-add-provider.md)** — Extend with custom LLM providers
-- **[Architecture reference](docs/reference-architecture.md)** — Deep dive into the system design
-- **[BaseProvider API](docs/reference-baseprovider-api.md)** — Implement custom providers
+Tests use fake or mocked providers and do not make billable requests. See
+[CONTRIBUTING.md](CONTRIBUTING.md) before changing provider contracts.
+Report vulnerabilities according to [SECURITY.md](SECURITY.md).
+
+## Documentation
+
+| Goal | Guide |
+|---|---|
+| Install and run the first query | [Getting started](docs/tutorial-getting-started.md) |
+| Run a basic query | [Basic research](docs/howto-basic-research.md) |
+| Choose providers and models | [Provider selection](docs/howto-select-providers.md) |
+| Use deep research and resume | [Deep research](docs/howto-deep-research.md) |
+| Compare evidence | [Meta-analysis](docs/howto-meta-analysis.md) |
+| Add a provider | [Adding a provider](docs/howto-add-provider.md) |
+| Understand provider contracts | [BaseProvider API](docs/reference-baseprovider-api.md) |
 
 ## Licence
 
-MIT
+[MIT](LICENSE)

@@ -1,2 +1,0 @@
-# Install packages with: uv pip install <package>
-# Then freeze with: uv pip freeze > requirements.txt
