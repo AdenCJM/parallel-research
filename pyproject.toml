@@ -8,7 +8,7 @@ requires-python = ">=3.11"
 authors = [{ name = "AdenCJM" }]
 dependencies = [
     "anthropic>=0.68,<2",
-    "google-genai>=1.30,<2",
+    "google-genai>=1.30,<3",
     "httpx>=0.27,<1",
     "openai>=1.109,<3",
     "perplexityai>=0.13,<2",
@@ -19,9 +19,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "build>=1.2,<2",
-    "mypy>=1.15,<2",
+    "mypy>=1.15,<3",
     "pip-audit>=2.9,<3",
-    "pytest>=8.3,<9",
+    "pytest>=9.0.3,<10",
     "pytest-asyncio>=0.25,<2",
     "ruff>=0.11,<1",
     "types-PyYAML>=6.0,<7",
